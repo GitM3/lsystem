@@ -374,8 +374,9 @@ def end_branch(turtle, parameters, bl_obj, obj_base_pairs, context):
 
 
 def start_object(turtle, parameters, bl_obj, obj_base_pairs, context):
+    radius = to_float_array(parameters, turtle.radius)
     bl_obj.push(turtle.transform)
-    bl_obj = BlObject(turtle.radius)
+    bl_obj = BlObject(radius)
     turtle.object_stack.append(bl_obj)
     # bl_obj = BlObject(self.radius)
     bl_obj.start_new_mesh_part(turtle.transform)

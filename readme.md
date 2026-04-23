@@ -34,7 +34,7 @@ In blender go to File->User Preferences->Add-ons and enable
 | ~      | Copy an existing blender object (requires the name of the object to be copied as a parameter) |
 | !      | Decrement the diameter of segments       |
 | %      | Cut off the remainder of the branch      |
-| :      | Start a new blender object               |
+| :      | Start a new blender object, optionally with an initial radius | :(0.02) |
 | ;      | End current blender object               |
 | #      | Fatten the radius of the branch |
 | p      | Change pens, requires a value (see table below). | p(subsurf) |
