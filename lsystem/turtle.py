@@ -38,10 +38,10 @@ class BlObject:
         elif name.startswith("subsurf"):
             try:
                 subdiv = int(name[7:])
-                print("subdiv "+str(subdiv))
+                print("subdiv " + str(subdiv))
                 self.pen = pen.EdgePen(True, subdiv)
             except Exception:
-                print("Invalid subsurf '"+name+"'")
+                print("Invalid subsurf '" + name + "'")
         elif name == "curve":
             self.pen = pen.CurvePen()
         elif name == "line":
@@ -58,9 +58,9 @@ class BlObject:
                 vertices = int(name[3:])
                 self.pen = pen.CylPen(vertices)
             except Exception:
-                print("Invalid cyl '"+name+"'")
+                print("Invalid cyl '" + name + "'")
         else:
-            print("No pen with name '"+name+"' found")
+            print("No pen with name '" + name + "' found")
             return
         self.start_new_mesh_part(transform)
 
@@ -156,32 +156,32 @@ class Turtle:
         self.next_copied_object_warping = mathutils.Vector((1.0, 1.0, 1.0))
 
         self.sym_func_map = {}
-        self.set_interpretation('F', move_forward)
-        self.set_interpretation('f', move_forward_without_draw)
-        self.set_interpretation('+', rot_y)
-        self.set_interpretation('-', rot_y_neg)
-        self.set_interpretation('^', rot_x)
-        self.set_interpretation('&', rot_x_neg)
-        self.set_interpretation('\\', rot_z_neg)
-        self.set_interpretation('/', rot_z)
+        self.set_interpretation("F", move_forward)
+        self.set_interpretation("f", move_forward_without_draw)
+        self.set_interpretation("+", rot_y)
+        self.set_interpretation("-", rot_y_neg)
+        self.set_interpretation("^", rot_x)
+        self.set_interpretation("&", rot_x_neg)
+        self.set_interpretation("\\", rot_z_neg)
+        self.set_interpretation("/", rot_z)
         # todo: self.set_interpretation('|', turn_around)
-        self.set_interpretation('$', rotate_upright)
-        self.set_interpretation('[', start_branch)
-        self.set_interpretation(']', end_branch)
-        self.set_interpretation('{', start_face)
-        self.set_interpretation('}', end_face)
-        self.set_interpretation('¤', set_current_radius)
-        self.set_interpretation('!', slink)
-        self.set_interpretation('~', copy_object)
-        self.set_interpretation(':', start_object)
-        self.set_interpretation(';', end_object)
-        self.set_interpretation('#', fatten)
+        self.set_interpretation("$", rotate_upright)
+        self.set_interpretation("[", start_branch)
+        self.set_interpretation("]", end_branch)
+        self.set_interpretation("{", start_face)
+        self.set_interpretation("}", end_face)
+        self.set_interpretation("¤", set_current_radius)
+        self.set_interpretation("!", slink)
+        self.set_interpretation("~", copy_object)
+        self.set_interpretation(":", start_object)
+        self.set_interpretation(";", end_object)
+        self.set_interpretation("#", fatten)
         # self.set_interpretation('%', slink)  # handled in lsystem
-        self.set_interpretation('s', scale)
-        self.set_interpretation('w', warp_next_copied_object)
-        self.set_interpretation('p', set_pen)
-        self.set_interpretation('m', set_material)
-        self.set_interpretation('£', random_angle)
+        self.set_interpretation("s", scale)
+        self.set_interpretation("w", warp_next_copied_object)
+        self.set_interpretation("p", set_pen)
+        self.set_interpretation("m", set_material)
+        self.set_interpretation("£", random_angle)
 
     def set_radius(self, radius):
         self.radius = radius
@@ -216,7 +216,9 @@ class Turtle:
         # print("turtle rotate")
         # print(str(angle))
         # print(str(vector))
-        self.transform = util.matmul(self.transform, mathutils.Matrix.Rotation(angle, 4, vector))
+        self.transform = util.matmul(
+            self.transform, mathutils.Matrix.Rotation(angle, 4, vector)
+        )
 
     def rotate_y(self, angle):
         self.rotate(angle, mathutils.Vector((0.0, 1.0, 0.0)))
@@ -236,23 +238,26 @@ class Turtle:
         new_left.normalize()
 
         scalar = util.matmul(old_left, new_left)
-        print("direction {} old_left {} new_left {} scalar {}".format(direction, old_left, new_left, scalar))
+        # print("direction {} old_left {} new_left {} scalar {}".format(direction, old_left, new_left, scalar))
         if scalar >= 1.0:
             return  # lines are parallel
 
         angle = acos(scalar)  # angle is between 0 and pi
-        new_rot = util.matmul(rot.to_matrix(), mathutils.Matrix.Rotation(angle, 3, mathutils.Vector((0.0, 0.0, 1.0))))
+        new_rot = util.matmul(
+            rot.to_matrix(),
+            mathutils.Matrix.Rotation(angle, 3, mathutils.Vector((0.0, 0.0, 1.0))),
+        )
         test_up = util.matmul(new_rot, mathutils.Vector((0.0, 1.0, 0.0)))
         new_up = direction.cross(new_left)
-        print("angle {}".format(angle))
+        # print("angle {}".format(angle))
 
         if util.matmul(test_up, new_up) > 0:
             angle = -angle
-        print("test up {} new_up {} angle {}".format(test_up, new_up, angle))
+        # print("test up {} new_up {} angle {}".format(test_up, new_up, angle))
         self.rotate_z(angle)
 
     def scale_radius(self, scale, bl_obj):
-        bl_obj.set_radius(bl_obj.get_radius()*scale)
+        bl_obj.set_radius(bl_obj.get_radius() * scale)
 
     def set_current_radius(self, radius, bl_obj):
         bl_obj.set_radius(radius)
@@ -288,7 +293,7 @@ class Turtle:
 
     def copy_object(self, object_name, bl_obj, obj_base_pairs):
         if object_name not in bpy.data.objects:
-            print("Invalid object name '"+object_name+"'")
+            print("Invalid object name '" + object_name + "'")
             return
         obj = bpy.data.objects[object_name]
         copy = obj.copy()
@@ -317,7 +322,7 @@ class Turtle:
             parameters = []
             c = input[pos]
             # print("c["+str(i)+"] = "+c)
-            if pos+2 < tot_len and input[pos+1] == '(':
+            if pos + 2 < tot_len and input[pos + 1] == "(":
                 parameters, pos = self.scan_parameters(input, pos)
             else:
                 pos += 1
@@ -334,12 +339,12 @@ class Turtle:
         end = start
         tot_len = len(string)
         while end < tot_len:
-            if string[end] == ')':
+            if string[end] == ")":
                 break
             end += 1
         val_str = string[start:end]
         parameters = val_str.split(",")
-        return parameters, end+1
+        return parameters, end + 1
 
     def exec_sym(self, obj_base_pairs, context, sym, parameters):
         bl_obj = self.object_stack[-1]
@@ -507,7 +512,7 @@ def warp_next_copied_object(turtle, parameters, bl_obj, obj_base_pairs, context)
 
         turtle.warp_copied_object(parameters, bl_obj)
     except AssertionError:
-        print('wrong parameters type')
+        print("wrong parameters type")
 
 
 def copy_object(turtle, parameters, bl_obj, obj_base_pairs, context):

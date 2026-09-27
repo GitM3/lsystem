@@ -30,7 +30,7 @@ class ProductionRule:
         if str is None:
             return None
         r = str
-        for key,value in constants.items():
+        for key, value in constants.items():
             r = r.replace(key, value)
         return r
 
@@ -42,7 +42,7 @@ class ProductionRule:
 
     def get_parameters(self, str):
         if "(" in str:
-            sind = str.find("(")+1
+            sind = str.find("(") + 1
             if ")" in str:
                 eind = str.find(")")
             else:
@@ -67,23 +67,24 @@ class ProductionRule:
             return False
 
         if self.parameters is None:
-            # print("no parameters")
-            return True
-
-        parameters = self.get_parameters(input)
-        if len(parameters) != len(self.parameters):
-            # print(str(len(parameters)) + " != " + str(len(self.parameters)))
-            return False
-
-        self.param_subs = dict()
-        for i in range(0, len(self.parameters)):
-            self.param_subs[self.parameters[i]] = parameters[i]
-
-        if self.condition is not None and len(self.condition) > 0:
-            if self.eval_condition(self.condition) == 0:
+            self.param_subs = None
+            consumed = len(self.module)
+        else:
+            parameters = self.get_parameters(input)
+            if len(parameters) != len(self.parameters):
+                # print(str(len(parameters)) + " != " + str(len(self.parameters)))
                 return False
 
-        self.consumed = input.find(")")+1
+            self.param_subs = dict()
+            for i in range(0, len(self.parameters)):
+                self.param_subs[self.parameters[i]] = parameters[i]
+            consumed = input.find(")") + 1
+
+        if self.condition is not None and len(self.condition) > 0:
+            if not self.eval_condition(self.condition):
+                return False
+
+        self.consumed = consumed
         return True
 
     def parse_parameters(self, string):
@@ -94,7 +95,7 @@ class ProductionRule:
             c, val = self.parse_expression(string[end_ind:])
             parameters.append(val)
             end_ind += c
-            if string[end_ind] == ')':
+            if string[end_ind] == ")":
                 end_ind += 1
                 break
             end_ind += 1
@@ -107,50 +108,50 @@ class ProductionRule:
             if string.startswith("rand("):
                 op_len = len("rand(")
                 count, values = self.parse_parameters(string[op_len:])
-                return count+op_len, random.uniform(values[0], values[1])
+                return count + op_len, random.uniform(values[0], values[1])
             elif string.startswith("add("):
                 op_len = len("add(")
                 count, values = self.parse_parameters(string[op_len:])
-                return count+op_len, values[0]+values[1]
+                return count + op_len, values[0] + values[1]
             elif string.startswith("sub("):
                 op_len = len("sub(")
                 count, values = self.parse_parameters(string[op_len:])
-                return count+op_len, values[0] - values[1]
+                return count + op_len, values[0] - values[1]
             elif string.startswith("mul("):
                 op_len = len("mul(")
                 count, values = self.parse_parameters(string[op_len:])
-                return count+op_len, values[0] * values[1]
+                return count + op_len, values[0] * values[1]
             elif string.startswith("div("):
                 op_len = len("div(")
                 count, values = self.parse_parameters(string[op_len:])
-                return count+op_len, values[0] / values[1]
+                return count + op_len, values[0] / values[1]
             elif string.startswith("pow("):
                 op_len = len("pow(")
                 count, values = self.parse_parameters(string[op_len:])
-                return count+op_len, pow(values[0], values[1])
+                return count + op_len, pow(values[0], values[1])
             elif string.startswith("log("):
                 op_len = len("log(")
                 count, values = self.parse_parameters(string[op_len:])
                 if len(values) == 1:
-                    return count+op_len, math.log(values[0])
+                    return count + op_len, math.log(values[0])
                 else:
-                    return count+op_len, math.log(values[0], values[1])
+                    return count + op_len, math.log(values[0], values[1])
             elif string.startswith("sqrt("):
                 op_len = len("sqrt(")
                 count, values = self.parse_parameters(string[op_len:])
-                return count+op_len, math.sqrt(values[0])
+                return count + op_len, math.sqrt(values[0])
             elif string.startswith("sin("):
                 op_len = len("sin(")
                 count, values = self.parse_parameters(string[op_len:])
-                return count+op_len, math.sin(values[0])
+                return count + op_len, math.sin(values[0])
             elif string.startswith("cos("):
                 op_len = len("cos(")
                 count, values = self.parse_parameters(string[op_len:])
-                return count+op_len, math.cos(values[0])
+                return count + op_len, math.cos(values[0])
             elif string.startswith("tan("):
                 op_len = len("tan(")
                 count, values = self.parse_parameters(string[op_len:])
-                return count+op_len, math.tan(values[0])
+                return count + op_len, math.tan(values[0])
             elif string.startswith("eq("):
                 op_len = len("eq(")
                 count, values = self.parse_parameters(string[op_len:])
@@ -185,7 +186,7 @@ class ProductionRule:
                     return c, 0
             elif string.startswith("get("):
                 op_len = len("get(")
-                count,values = self.parse_parameters(string[op_len:])
+                count, values = self.parse_parameters(string[op_len:])
                 c = count + op_len
                 if values[0] == "i":
                     return c, self.instance
@@ -193,14 +194,14 @@ class ProductionRule:
                     return c, self.iteration
             else:
                 c = 0
-                while c <= len(string) and string[c] != ',' and string[c] != ')':
+                while c <= len(string) and string[c] != "," and string[c] != ")":
                     c += 1
                 val_str = string[:c]
                 if self.param_subs is not None and val_str in self.param_subs:
                     val_str = self.param_subs[val_str]
                 try:
                     val = float(val_str)
-                    return c,val
+                    return c, val
                 except ValueError:
                     pass
                 return c, val_str
@@ -227,10 +228,10 @@ class ProductionRule:
                 i += 1
                 consumed, value = self.parse_expression(self.result[i:])
                 i += consumed
-                res += c+str(value)
+                res += c + str(value)
             elif c == "%":
                 # find end of branch/object
-                consumed = self.scan_end_branch(i+1, current_input)
+                consumed = self.scan_end_branch(i + 1, current_input)
                 self.consumed += consumed
                 i += consumed
             else:
@@ -244,10 +245,10 @@ class ProductionRule:
         while i < len(current_input):
             c = current_input[i]
             i += 1
-            if c == ']':
+            if c == "]":
                 return i
 
-        return i-start_index
+        return i - start_index
 
     def __str__(self):
         if self.condition is not None and len(self.condition) > 0:
@@ -267,7 +268,7 @@ class LSystem:
         i = 0
         while i < len(input):
             current_input = input[i:]
-            matching_rules = self.get_matching_rules(current_input)
+            matching_rules = self.get_matching_rules(current_input, instance, iteration, rules)
             if len(matching_rules) > 0:
                 chosen_rule = random.choice(matching_rules)
                 result += chosen_rule.get_result(instance, iteration, current_input)
@@ -277,22 +278,24 @@ class LSystem:
                 i += 1
         return result
 
-    def get_matching_rules(self, string):
+    def get_matching_rules(self, string, instance, iteration, rules):
         matching_rules = []
-        for rule in self.rules:
+        for rule in rules:
+            rule.instance = instance
+            rule.iteration = iteration
             if rule.matches(string):
                 matching_rules.append(rule)
         return matching_rules
 
     def iterate(self, instance, iterations):
         result = self.axiom.get_result(instance, 0, "")
-        print(result)
+        # print(result)
         for i in range(0, iterations):
             result = self.exec_rules(instance, i, result, self.rules)
-            print(result)
+            # print(result)
         if self.replacements is not None:
             result = self.exec_rules(instance, 0, result, self.replacements)
-            print(result)
+            # print(result)
         return result
 
 
@@ -328,14 +331,15 @@ class LSystem:
 #         result = exec_rules(instance, i, result, rules)
 #     return result
 
+
 def run_test(axiom, rules, iterations):
     axiomRule = ProductionRule("", axiom)
     lsystem = LSystem(axiomRule, rules, None)
     return lsystem.iterate(0, iterations)
 
+
 # Can't use unittests in separate module because of mathutils dependency in __init__.py
 class TestLSystem(unittest.TestCase):
-
     def test_algae(self):
         rule1 = ProductionRule("A", "AB")
         rule2 = ProductionRule("B", "A")
@@ -397,7 +401,10 @@ class TestLSystem(unittest.TestCase):
 
     def test_parametric_2(self):
         axiom = "A(1,10)"
-        rule1 = ProductionRule("A(l,w)", "¤(w)F(l)[\(45)B(mul(l,0.6),mul(w,0.707))]>(137.5)A(mul(l,0.9),mul(w,0.707))")
+        rule1 = ProductionRule(
+            "A(l,w)",
+            "¤(w)F(l)[\(45)B(mul(l,0.6),mul(w,0.707))]>(137.5)A(mul(l,0.9),mul(w,0.707))",
+        )
 
         result = run_test(axiom, [rule1], 1)
         expected = "¤(10.0)F(1.0)[\(45.0)B(0.6,7.069999999999999)]>(137.5)A(0.9,7.069999999999999)"
@@ -411,6 +418,25 @@ class TestLSystem(unittest.TestCase):
         result = run_test(axiom, [rule1, rule2], 1)
         expected = "C(4.0)"
         self.assertEqual(expected, result)
+
+    def test_iteration_condition_on_parametric_rule(self):
+        rule = ProductionRule("A(x)", "A(add(x,1))", "lt(get(iter),3)")
+
+        self.assertEqual("A(3.0)", run_test("A(0)", [rule], 5))
+
+    def test_iteration_condition_on_rule_without_parameters(self):
+        rule = ProductionRule("X", "FX", "lt(get(iter),3)")
+
+        self.assertEqual("FFFX", run_test("X", [rule], 5))
+
+    def test_final_replacements_use_replacement_rules(self):
+        lsystem = LSystem(
+            ProductionRule("", "X"),
+            [ProductionRule("X", "A")],
+            [ProductionRule("A", "B")],
+        )
+
+        self.assertEqual("B", lsystem.iterate(0, 1))
 
     def test_set_pen(self):
         axiom = "X"

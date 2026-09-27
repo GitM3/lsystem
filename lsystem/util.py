@@ -1,4 +1,3 @@
-
 import bpy
 import operator
 
@@ -19,20 +18,24 @@ def link(context, obj):
 
 
 def to_mesh(obj, context=None):
-    print("util.to_mesh()\n{}\n{}".format(obj, obj.modifiers))
+    # print("util.to_mesh()\n{}\n{}".format(obj, obj.modifiers))
     if hasattr(bpy.app, "version") and bpy.app.version >= (2, 80):
-        print("version >= 2.80")
+        # print("version >= 2.80")
         if not context:
             context = bpy.context
         context.scene.collection.objects.link(obj)
         depsgraph = context.evaluated_depsgraph_get()
         obj_eval = obj.evaluated_get(depsgraph)
-        #new_mesh = obj_eval.to_mesh()
-        new_mesh = bpy.data.meshes.new_from_object(obj_eval, preserve_all_data_layers=True, depsgraph=depsgraph)
+        # new_mesh = obj_eval.to_mesh()
+        new_mesh = bpy.data.meshes.new_from_object(
+            obj_eval, preserve_all_data_layers=True, depsgraph=depsgraph
+        )
         context.scene.collection.objects.unlink(obj)
         return new_mesh
     else:
-        new_mesh = obj.to_mesh(scene=bpy.context.scene, apply_modifiers=True, settings='PREVIEW')
+        new_mesh = obj.to_mesh(
+            scene=bpy.context.scene, apply_modifiers=True, settings="PREVIEW"
+        )
         bpy.data.objects.remove(obj)
         return new_mesh
 
